@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+GOARCH=arm GOARM=5 GOOS=linux go build -o build/termo-api .

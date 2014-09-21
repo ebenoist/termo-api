@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+PI_IP=192.168.2.2
+PI_USER=pi
+PROJECT_NAME=termo-api
+
+./script/build_for_pi
+scp build/$PROJECT_NAME $PI_USER@$PI_IP:/home/pi/$PROJECT_NAME
