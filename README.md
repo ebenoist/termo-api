@@ -4,6 +4,7 @@ Termo-API
 A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 
 ### Hardware
+<img src="http://erikbenoist.com/thermo.jpg" width=320 alt="diy-thermostat">
 - Raspberry Pi (Model B)
 - Sainsmart 4 Relay Module
 - DS18B20 Temperature Sensor
@@ -24,7 +25,7 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 ```JSON
 {
   "thermostat": {
-    "targetTemperature": 68
+    "targetTemperature": 68,
     "on" : true
   }
 }
@@ -32,12 +33,11 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 
 ### POST /v1/thermostat
 > Turn off the heat
+
 ```JSON
-// BODY
 {
   "thermostat": {
-    "targetTemperature": 68
-    "on" : false
+    "targetTemperature": 30
   }
 }
 ```
