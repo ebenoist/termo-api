@@ -35,6 +35,7 @@ func buildContext() *Context {
 }
 
 func openPin() hwio.Pin {
+	hwio.SetDriver(new(hwio.RaspberryPiDTDriver))
 	pin, err := hwio.GetPinWithMode("gpio17", hwio.OUTPUT)
 
 	if err != nil {
@@ -50,9 +51,9 @@ func openPin() hwio.Pin {
 func main() {
 	log.Println("Booting termo!")
 
-	hwio.SetDriver(new(hwio.RaspberryPiDTDriver))
-	hwio.CloseAll()
+	context := buildContext()
 
+	// CLEAN UP
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
@@ -63,7 +64,6 @@ func main() {
 		}
 	}()
 
-	context := buildContext()
 	go monitorRun(context)
 	apiRun(context)
 }
