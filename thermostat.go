@@ -16,17 +16,18 @@ func (t *Thermostat) setTargetTemp(targetTemp int) {
 }
 
 func (t *Thermostat) turnOn() {
+	hwio.DigitalWrite(t.pin, hwio.LOW)
 	t.On = true
 }
 
 func (t *Thermostat) turnOff() {
+	hwio.DigitalWrite(t.pin, hwio.HIGH)
 	t.On = false
 }
 
 func (t *Thermostat) adjust(currentTemp int) {
 	if currentTemp+TEMP_BUFFER > t.TargetTemperature {
 		if t.On {
-			hwio.DigitalWrite(t.pin, hwio.HIGH)
 			log.Printf("Turning OFF the heat, currentTemp: %d, targetTemp: %d", currentTemp, t.TargetTemperature)
 			t.turnOff()
 		}
@@ -34,7 +35,6 @@ func (t *Thermostat) adjust(currentTemp int) {
 
 	if currentTemp-TEMP_BUFFER < t.TargetTemperature {
 		if !t.On {
-			hwio.DigitalWrite(t.pin, hwio.LOW)
 			log.Printf("Turning ON the heat, currentTemp: %d, targetTemp: %d", currentTemp, t.TargetTemperature)
 			t.turnOn()
 		}
