@@ -58,7 +58,11 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		for sig := range c {
-			log.Printf("Exiting Termo!! %q", sig)
+			log.Printf("Caught %v", sig)
+			log.Println("Exiting Termo!!")
+
+			context.Thermostat.turnOff()
+
 			hwio.CloseAll()
 			os.Exit(1)
 		}

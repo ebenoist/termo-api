@@ -26,19 +26,16 @@ func (t *Thermostat) turnOff() {
 }
 
 func (t *Thermostat) adjust(currentTemp int) {
-	if currentTemp+TEMP_BUFFER > t.TargetTemperature {
-		if t.On {
+	if t.On {
+		if currentTemp > t.TargetTemperature {
 			log.Printf("Turning OFF the heat, currentTemp: %d, targetTemp: %d", currentTemp, t.TargetTemperature)
 			t.turnOff()
 		}
-	}
-
-	if currentTemp-TEMP_BUFFER < t.TargetTemperature {
-		if !t.On {
+	} else {
+		// fall TEMP_BUFFER bellow the target, turn heat on
+		if currentTemp+TEMP_BUFFER < t.TargetTemperature {
 			log.Printf("Turning ON the heat, currentTemp: %d, targetTemp: %d", currentTemp, t.TargetTemperature)
 			t.turnOn()
 		}
 	}
-
-	log.Printf("Leaving the heat %t, currentTemp: %d, targetTemp: %d", t.On, currentTemp, t.TargetTemperature)
 }
