@@ -29,6 +29,5 @@ func (t *Thermometer) setCurrentTemp() {
 	raw_temp := string(data[START_TEMP:END_TEMP])
 	temp, _ := strconv.Atoi(raw_temp)
 
-	log.Printf("Setting current temp to: %d", temp)
 	t.CurrentTemp = temp
 }
