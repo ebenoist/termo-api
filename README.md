@@ -15,7 +15,6 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 {
   "thermometer": {
     "readTime": "2014-09-20T20:45:40Z",
-    "fahrenheit": 72,
     "celsius": 22
   }
 }
