@@ -13,7 +13,7 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 #### GET /v1/temperature
 ```JSON
 {
-  "temperature": {
+  "thermometer": {
     "readTime": "2014-09-20T20:45:40Z",
     "fahrenheit": 72,
     "celsius": 22
@@ -32,7 +32,7 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 ```
 
 ### POST /v1/thermostat
-> Turn off the heat
+> set the target temperature
 
 ```JSON
 {
