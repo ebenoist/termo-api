@@ -22,16 +22,14 @@ type Context struct {
 }
 
 func buildContext() *Context {
-	context := new(Context)
-
-	context.Thermostat = new(Thermostat)
-	context.Thermostat.On = false
-	context.Thermostat.TargetTemperature = 20
-	context.Thermostat.pin = openPin()
-
-	context.Thermometer = new(Thermometer)
-
-	return context
+	return &Context{
+		Thermostat: &Thermostat{
+			On:                false,
+			TargetTemperature: 20,
+			pin:               openPin(),
+		},
+		Thermometer: &Thermometer{},
+	}
 }
 
 func openPin() hwio.Pin {
