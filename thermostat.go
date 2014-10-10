@@ -7,7 +7,7 @@ import (
 
 type Thermostat struct {
 	TargetTemperature int  `json:"targetTemperature"`
-	On                bool `json:on"`
+	On                bool `json:"on"`
 	pin               hwio.Pin
 }
 

@@ -5,6 +5,19 @@ import (
 	"log"
 )
 
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Content-Type", "application/json")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.Abort(200)
+			return
+		}
+		c.Next()
+	}
+}
+
 type ThermometerResponse struct {
 	Thermometer *Thermometer `json:"thermometer"`
 }
@@ -15,6 +28,7 @@ type ThermostatResponse struct {
 
 func apiRun(context *Context) {
 	r := gin.Default()
+	r.Use(CORSMiddleware())
 
 	v1 := r.Group("/v1")
 	v1.GET("/thermometer", func(c *gin.Context) {
