@@ -10,7 +10,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Content-Type", "application/json")
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, API-KEY")
 		if c.Request.Method == "OPTIONS" {
 			c.Abort(200)
 			return
@@ -22,8 +22,6 @@ func CORSMiddleware() gin.HandlerFunc {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.Header.Get("API-KEY") != os.Getenv("API_KEY") {
-			log.Println(c.Request.Header)
-			log.Printf("KEY %s does not match %s", c.Request.Header.Get("API_KEY"), os.Getenv("API_KEY"))
 			c.Abort(401)
 			return
 		}
@@ -43,7 +41,7 @@ type ThermostatResponse struct {
 func apiRun(context *Context) {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
-	//r.Use(AuthMiddleware()) TODO: update FE
+	r.Use(AuthMiddleware())
 
 	v1 := r.Group("/v1")
 	v1.GET("/thermometer", func(c *gin.Context) {
