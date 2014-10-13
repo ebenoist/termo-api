@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"os/user"
 	"time"
 )
 
@@ -34,12 +35,14 @@ func buildContext() *Context {
 
 func openPin() hwio.Pin {
 	hwio.SetDriver(new(hwio.RaspberryPiDTDriver))
+	time.Sleep(2 * time.Second)
 	pin, err := hwio.GetPinWithMode("gpio17", hwio.OUTPUT)
 
 	if err != nil {
 		log.Printf("Error opening pin! %s\n", err)
 	}
 
+	time.Sleep(2 * time.Second)
 	// PIN OFF ON BOOT
 	hwio.DigitalWrite(pin, hwio.HIGH)
 
@@ -49,25 +52,32 @@ func openPin() hwio.Pin {
 func main() {
 	log.Println("Booting termo!")
 
-	context := buildContext()
+	currentUser, _ := user.Current()
+	log.Printf("User: %s, Group: %s", currentUser.Uid, currentUser.Gid)
 
-	// CLEAN UP
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		for sig := range c {
-			log.Printf("Caught %v", sig)
-			log.Println("Exiting Termo!!")
+	if os.Getenv("API_KEY") != "" {
+		log.Printf("Using key %s", os.Getenv("API_KEY"))
 
-			context.Thermostat.turnOff()
+		context := buildContext()
 
-			hwio.CloseAll()
-			os.Exit(1)
-		}
-	}()
+		// CLEAN UP
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		go func() {
+			for sig := range c {
+				log.Printf("Caught %v", sig)
+				log.Println("Exiting Termo!!")
 
-	go monitorRun(context)
-	apiRun(context)
+				context.Thermostat.turnOff()
+
+				hwio.CloseAll()
+				os.Exit(1)
+			}
+		}()
+
+		go monitorRun(context)
+		apiRun(context)
+	}
 }
 
 func monitorRun(context *Context) {

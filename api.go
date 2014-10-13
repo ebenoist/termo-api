@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
+	"os"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -18,6 +19,19 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Header.Get("API-KEY") != os.Getenv("API_KEY") {
+			log.Println(c.Request.Header)
+			log.Printf("KEY %s does not match %s", c.Request.Header.Get("API_KEY"), os.Getenv("API_KEY"))
+			c.Abort(401)
+			return
+		}
+
+		c.Next()
+	}
+}
+
 type ThermometerResponse struct {
 	Thermometer *Thermometer `json:"thermometer"`
 }
@@ -29,6 +43,7 @@ type ThermostatResponse struct {
 func apiRun(context *Context) {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
+	//r.Use(AuthMiddleware()) TODO: update FE
 
 	v1 := r.Group("/v1")
 	v1.GET("/thermometer", func(c *gin.Context) {
