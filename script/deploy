@@ -1,7 +1,33 @@
 #!/usr/bin/env bash
-PI_IP=192.168.2.2
+PI_IP=192.168.0.103
 PI_USER=pi
-PROJECT_NAME=termo-api
+BIN_NAME=termo-api
+PROJ_DIR=/home/pi/termo-api
+BIN_PATH=$PROJ_DIR/$BIN_NAME
+PID_PATH=$PROJ_DIR/api.pid
+LOG_PATH=$PROJ_DIR/api.log
+API_KEY=`cat api_key`
 
+run_ssh () {
+  echo $1
+  ssh $PI_USER@$PI_IP "$1"
+  echo $?
+}
+
+echo "Building"
 ./script/build_for_pi
-scp build/$PROJECT_NAME $PI_USER@$PI_IP:/home/pi/$PROJECT_NAME
+if [ $? -eq 0 ]
+then
+  echo "Preparing"
+  run_ssh "mkdir -p $PROJ_DIR; true"
+
+  echo "Killing process"
+  run_ssh "if [ -e $PID_PATH ]; then kill -2 \$(cat $PID_PATH); fi"
+
+  echo "Copying new code to server"
+  scp build/$BIN_NAME $PI_USER@$PI_IP:$BIN_PATH
+  #run_ssh "chown pi:gpio $BIN_PATH"
+
+  echo "Running as root :("
+  run_ssh "sudo bash -c 'API_KEY=$API_KEY nohup $BIN_PATH > $LOG_PATH 2>&1 & echo \$! > $PID_PATH'"
+fi
