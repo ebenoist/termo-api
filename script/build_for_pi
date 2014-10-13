@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-GOARCH=arm GOARM=5 GOOS=linux go build -o build/termo-api .
+CGO_ENABLED=1 CC=/Volumes/xtools/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-cc GOARCH=arm GOARM=5 GOOS=linux go build -o build/termo-api .
