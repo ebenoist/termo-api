@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"os/user"
 	"time"
 )
 
@@ -52,32 +51,29 @@ func openPin() hwio.Pin {
 func main() {
 	log.Println("Booting termo!")
 
-	currentUser, _ := user.Current()
-	log.Printf("User: %s, Group: %s", currentUser.Uid, currentUser.Gid)
+	// if os.Getenv("API_KEY") != "" {
+	// log.Printf("Using key %s", os.Getenv("API_KEY"))
 
-	if os.Getenv("API_KEY") != "" {
-		log.Printf("Using key %s", os.Getenv("API_KEY"))
+	context := buildContext()
 
-		context := buildContext()
+	// CLEAN UP
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		for sig := range c {
+			log.Printf("Caught %v", sig)
+			log.Println("Exiting Termo!!")
 
-		// CLEAN UP
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt)
-		go func() {
-			for sig := range c {
-				log.Printf("Caught %v", sig)
-				log.Println("Exiting Termo!!")
+			context.Thermostat.turnOff()
 
-				context.Thermostat.turnOff()
+			hwio.CloseAll()
+			os.Exit(1)
+		}
+	}()
 
-				hwio.CloseAll()
-				os.Exit(1)
-			}
-		}()
-
-		go monitorRun(context)
-		apiRun(context)
-	}
+	go monitorRun(context)
+	apiRun(context)
+	// }
 }
 
 func monitorRun(context *Context) {
