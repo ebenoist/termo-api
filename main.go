@@ -13,7 +13,7 @@ const (
 	START_TEMP       = 69
 	END_TEMP         = 71
 	MONITOR_INTERVAL = 30 * time.Second
-	TEMP_BUFFER      = 2 // Buffer temp by 2 degrees celsius
+	TEMP_BUFFER      = 1.5 // Buffer temp by 1.5 degrees celsius
 )
 
 type Context struct {

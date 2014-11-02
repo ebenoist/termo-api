@@ -31,7 +31,6 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 ### Starting
 `$ API_KEY=foo ./termo-api`
 
-
 ### Issues
 * Permissions issues are preventing running the server as a non superuser
 * Flips relay on during boot.
