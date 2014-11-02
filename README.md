@@ -41,11 +41,9 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 #### GET /v1/thermostat
 ```JSON
 {
-  {
-    "targetTemp": 20,
-    "heaterStatus" : true,
-    "currentTemp": 18
-  }
+  "targetTemp": 20,
+  "heaterStatus" : true,
+  "currentTemp": 18
 }
 ```
 
@@ -54,8 +52,6 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 
 ```JSON
 {
-  {
-    "targetTemp": 30
-  }
+  "targetTemp": 30
 }
 ```
