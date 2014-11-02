@@ -33,27 +33,18 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 
 ### Issues
 * Permissions issues are preventing running the server as a non superuser
-* Flips relay on during boot.
-* Seperate routes for thermometer and thermostat is starting to feel silly.
 * Hardware build needs to be documented.
+* No unit tests
 
 ### JSON API
-#### GET /v1/thermometer
-```JSON
-{
-  "thermometer": {
-    "readTime": "2014-09-20T20:45:40Z",
-    "celsius": 22
-  }
-}
-```
 
 #### GET /v1/thermostat
 ```JSON
 {
-  "thermostat": {
-    "targetTemperature": 20,
-    "on" : true
+  {
+    "targetTemp": 20,
+    "heaterStatus" : true,
+    "currentTemp": 18
   }
 }
 ```
@@ -63,8 +54,8 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
 
 ```JSON
 {
-  "thermostat": {
-    "targetTemperature": 30
+  {
+    "targetTemp": 30
   }
 }
 ```

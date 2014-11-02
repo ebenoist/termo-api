@@ -30,40 +30,37 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-type ThermometerResponse struct {
-	Thermometer *Thermometer `json:"thermometer"`
+func presentThermostat(thermostat *Thermostat) gin.H {
+	return gin.H{
+		"currentTemp": thermostat.CurrentTemp(),
+		"targetTemp":  thermostat.TargetTemp,
+		"heaterOn":    thermostat.HeaterOn(),
+	}
 }
 
-type ThermostatResponse struct {
-	Thermostat *Thermostat `json:"thermostat"`
+type ThermostatRequest struct {
+	TargetTemp int `json:"targetTemp" binding:"required"`
 }
 
-func apiRun(context *Context) {
+func apiRun(thermostat *Thermostat) {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 	r.Use(AuthMiddleware())
 
 	v1 := r.Group("/v1")
-	v1.GET("/thermometer", func(c *gin.Context) {
-		t := new(ThermometerResponse)
-		t.Thermometer = context.Thermometer
-		c.JSON(200, t)
-	})
-
 	v1.GET("/thermostat", func(c *gin.Context) {
-		t := new(ThermostatResponse)
-		t.Thermostat = context.Thermostat
-		c.JSON(200, t)
+		c.JSON(200, presentThermostat(thermostat))
 	})
 
 	v1.POST("/thermostat", func(c *gin.Context) {
-		var json ThermostatResponse
-		var targetTemp int
-
+		var json ThermostatRequest
 		c.Bind(&json)
-		targetTemp = json.Thermostat.TargetTemperature
+
+		var targetTemp int
+		targetTemp = json.TargetTemp
 		log.Printf("Setting target temp to: %d", targetTemp)
-		context.Thermostat.setTargetTemp(json.Thermostat.TargetTemperature)
+
+		thermostat.TargetTemp = json.TargetTemp
 		c.JSON(200, json)
 	})
 

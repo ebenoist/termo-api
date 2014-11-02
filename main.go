@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/mrmorphic/hwio"
 	"log"
 	"os"
 	"os/signal"
@@ -9,43 +8,17 @@ import (
 )
 
 const (
-	TEMP_SENSOR      = "/sys/bus/w1/devices/28-0000061504ee/w1_slave"
-	START_TEMP       = 69
-	END_TEMP         = 71
-	MONITOR_INTERVAL = 30 * time.Second
-	TEMP_BUFFER      = 1
+	MONITOR_INTERVAL    = 30 * time.Second
+	TEMP_BUFFER         = 2
+	DEFAULT_TARGET_TEMP = 20
 )
 
-type Context struct {
-	Thermostat  *Thermostat
-	Thermometer *Thermometer
-}
-
-func buildContext() *Context {
-	return &Context{
-		Thermostat: &Thermostat{
-			On:                false,
-			TargetTemperature: 20,
-			pin:               openPin(),
-		},
+func buildThermostat() *Thermostat {
+	return &Thermostat{
+		TargetTemp:  DEFAULT_TARGET_TEMP,
+		Heater:      &Heater{On: false},
 		Thermometer: &Thermometer{},
 	}
-}
-
-func openPin() hwio.Pin {
-	hwio.SetDriver(new(hwio.RaspberryPiDTDriver))
-	time.Sleep(2 * time.Second)
-	pin, err := hwio.GetPinWithMode("gpio17", hwio.OUTPUT)
-
-	if err != nil {
-		log.Printf("Error opening pin! %s\n", err)
-	}
-
-	time.Sleep(2 * time.Second)
-	// PIN OFF ON BOOT
-	hwio.DigitalWrite(pin, hwio.HIGH)
-
-	return pin
 }
 
 func main() {
@@ -54,7 +27,7 @@ func main() {
 	if os.Getenv("API_KEY") != "" {
 		log.Printf("Using key %s", os.Getenv("API_KEY"))
 
-		context := buildContext()
+		thermostat := buildThermostat()
 
 		// CLEAN UP
 		c := make(chan os.Signal, 1)
@@ -63,23 +36,14 @@ func main() {
 			for sig := range c {
 				log.Printf("Caught %v", sig)
 				log.Println("Exiting Termo!!")
-
-				context.Thermostat.turnOff()
-
-				hwio.CloseAll()
+				thermostat.Stop()
 				os.Exit(1)
 			}
 		}()
 
-		go monitorRun(context)
-		apiRun(context)
-	}
-}
-
-func monitorRun(context *Context) {
-	for {
-		context.Thermometer.setCurrentTemp()
-		context.Thermostat.adjust(context.Thermometer.CurrentTemp)
-		time.Sleep(MONITOR_INTERVAL)
+		go thermostat.Run()
+		apiRun(thermostat)
+	} else {
+		log.Println("Could not find API_KEY")
 	}
 }
