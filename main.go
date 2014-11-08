@@ -14,10 +14,20 @@ const (
 )
 
 func buildThermostat() *Thermostat {
+	if os.Getenv("TERMO_MOCK") != "" {
+		log.Println("Booting in mock mode")
+
+		return &Thermostat{
+			TargetTemp:  DEFAULT_TARGET_TEMP,
+			Heater:      &FakeHeater{},
+			Thermometer: &FakeThermometer{},
+		}
+	}
+
 	return &Thermostat{
 		TargetTemp:  DEFAULT_TARGET_TEMP,
-		Heater:      &Heater{On: false},
-		Thermometer: &Thermometer{},
+		Heater:      &RealHeater{},
+		Thermometer: &RealThermometer{},
 	}
 }
 

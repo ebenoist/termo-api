@@ -5,28 +5,39 @@ import (
 	"log"
 )
 
+type Heater interface {
+	TurnOn()
+	TurnOff()
+	ShutDown()
+	On() bool
+}
+
 // Heater is a light wrapper around the hwio package
-type Heater struct {
-	On  bool
+type RealHeater struct {
+	on  bool
 	pin hwio.Pin
 }
 
-func (h *Heater) TurnOn() {
+func (h *RealHeater) On() bool {
+	return h.on
+}
+
+func (h *RealHeater) TurnOn() {
 	h.setPin(true)
-	h.On = true
+	h.on = true
 }
 
-func (h *Heater) TurnOff() {
+func (h *RealHeater) TurnOff() {
 	h.setPin(false)
-	h.On = false
+	h.on = false
 }
 
-func (h *Heater) ShutDown() {
+func (h *RealHeater) ShutDown() {
 	h.TurnOff()
 	hwio.CloseAll()
 }
 
-func (h *Heater) setPin(on bool) {
+func (h *RealHeater) setPin(on bool) {
 	if h.pin == 0 { // pin will be 0 if not set
 		h.openPin()
 	}
@@ -38,7 +49,7 @@ func (h *Heater) setPin(on bool) {
 	}
 }
 
-func (h *Heater) openPin() {
+func (h *RealHeater) openPin() {
 	hwio.SetDriver(new(hwio.RaspberryPiDTDriver))
 	pin, err := hwio.GetPinWithMode("gpio17", hwio.OUTPUT)
 

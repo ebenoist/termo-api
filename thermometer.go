@@ -12,7 +12,11 @@ const (
 	END_TEMP    = 71 // read until the 71st character
 )
 
-type Thermometer struct {
+type Thermometer interface {
+	ReadTemp() int
+}
+
+type RealThermometer struct {
 	lastReadTemp int
 }
 
@@ -20,7 +24,7 @@ type Thermometer struct {
 // and asynchronously schedule a new read
 // in the case of no known temperature, ReadTemp will
 // synchronously read from the sensor which can cost ~ 500ms
-func (t *Thermometer) ReadTemp() int {
+func (t *RealThermometer) ReadTemp() int {
 	if t.lastReadTemp != 0 {
 		go t.readFromSensor()
 		return t.lastReadTemp
@@ -30,7 +34,7 @@ func (t *Thermometer) ReadTemp() int {
 	}
 }
 
-func (t *Thermometer) readFromSensor() {
+func (t *RealThermometer) readFromSensor() {
 	file, err := os.Open(TEMP_SENSOR)
 	if err != nil {
 		log.Println("Error! %s", err)

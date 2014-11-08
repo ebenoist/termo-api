@@ -7,8 +7,8 @@ import (
 
 type Thermostat struct {
 	TargetTemp  int
-	Heater      *Heater
-	Thermometer *Thermometer
+	Heater      Heater
+	Thermometer Thermometer
 }
 
 func (t *Thermostat) Run() {
@@ -27,7 +27,7 @@ func (t *Thermostat) CurrentTemp() int {
 }
 
 func (t *Thermostat) HeaterOn() bool {
-	return t.Heater.On
+	return t.Heater.On()
 }
 
 func (t *Thermostat) Adjust() {
