@@ -45,7 +45,10 @@ type ThermostatRequest struct {
 func apiRun(thermostat *Thermostat) {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
-	r.Use(AuthMiddleware())
+
+	if os.Getenv("TERMO_MOCK") != "true" {
+		r.Use(AuthMiddleware())
+	}
 
 	v1 := r.Group("/v1")
 	v1.GET("/thermostat", func(c *gin.Context) {
