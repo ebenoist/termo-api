@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+export API_KEY=123
+export TERMO_MOCK=true
+
+go clean
+go install
+if [ $? -eq 0 ]
+then
+  $GOPATH/bin/termo-api
+fi
