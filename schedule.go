@@ -1,16 +1,16 @@
 package main
 
 import (
-	"database/sql"
+	"github.com/guregu/null"
 	"log"
 	"time"
 )
 
 type Schedule struct {
-	Id         sql.NullInt64 `db:"id" json:"id"`
-	Hour       int           `db:"hour" json:"hour" binding:"required"`
-	TargetTemp int           `db:"target_temp" json:"target_temp" binding:"required"`
-	Days       string        `db:"days" json:"days" binding:"required"`
+	Id         null.Int `db:"id" json:"id"`
+	Hour       int      `db:"hour" json:"hour" binding:"required"`
+	TargetTemp int      `db:"target_temp" json:"targetTemp" binding:"required"`
+	Days       string   `db:"days" json:"days" binding:"required"`
 }
 
 const (
@@ -47,6 +47,19 @@ func DestroySchedule(d *Database, id int) error {
 	}
 
 	return err
+}
+
+func FindAllSchedules(d *Database) ([]Schedule, error) {
+	connection := d.Connection()
+
+	var schedules []Schedule
+	err := connection.Select(&schedules, `SELECT * FROM schedule`)
+
+	if err != nil {
+		log.Printf("db: error %s", err)
+	}
+
+	return schedules, err
 }
 
 func (s *Schedule) Save(d *Database) error {

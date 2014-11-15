@@ -147,4 +147,29 @@ var _ = Describe("Schedule", func() {
 
 		Expect(foundTime.TargetTemp).To(Equal(10))
 	})
+
+	Describe("FindAllSchedules", func() {
+		It("Returns all the schedules", func() {
+			schedule := &Schedule{
+				TargetTemp: 10,
+				Hour:       8,
+				Days:       WEEKENDS,
+			}
+
+			scheduleTwo := &Schedule{
+				TargetTemp: 11,
+				Hour:       11,
+				Days:       WEEKENDS,
+			}
+
+			schedule.Save(database)
+			scheduleTwo.Save(database)
+
+			schedules, _ := FindAllSchedules(database)
+			Expect(schedules).To(HaveLen(2))
+
+			Expect(schedules[0].TargetTemp).To(Equal(10))
+			Expect(schedules[1].TargetTemp).To(Equal(11))
+		})
+	})
 })
