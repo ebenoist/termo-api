@@ -1,18 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var schemaUp = `
-CREATE TABLE schedule (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
+var schemaUp = `CREATE TABLE schedule
+(id INTEGER PRIMARY KEY AUTOINCREMENT,
 	hour INTEGER NOT NULL,
 	days STRING NOT NULL,
-	target_temp INTEGER NOT NULL
-);
-`
+	target_temp INTEGER NOT NULL);`
 
 var schemaDown = "DROP TABLE schedule;"
 
@@ -25,7 +23,8 @@ func (d *Database) Connection() *sqlx.DB {
 		return d.connection
 	}
 
-	db, err := sqlx.Connect("sqlite3", "./termo-db.db")
+	dbName := fmt.Sprintf("%s-%s.db", DB_NAME, ENV)
+	db, err := sqlx.Connect("sqlite3", dbName)
 	if err != nil {
 		panic(err)
 	}

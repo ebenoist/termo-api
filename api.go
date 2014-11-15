@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"os"
+	"strconv"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -42,8 +44,21 @@ type ThermostatRequest struct {
 	TargetTemp int `json:"targetTemp" binding:"required"`
 }
 
+type ScheduleResponse struct {
+	Id         int    `json:"id"`
+	Hour       int    `json:"hour" binding:"required"`
+	TargetTemp int    `json:"target_temp" binding:"required"`
+	Days       string `json:"days" binding:"required"`
+}
+
 func Api(thermostat *Thermostat) *gin.Engine {
-	r := gin.Default()
+	database := &Database{}
+
+	r := gin.New()
+
+	r.Use(gin.Recovery())
+	r.Use(gin.Logger())
+
 	r.Use(CORSMiddleware())
 
 	if os.Getenv("TERMO_MOCK") != "true" {
@@ -64,7 +79,37 @@ func Api(thermostat *Thermostat) *gin.Engine {
 		log.Printf("Setting target temp to: %d", targetTemp)
 
 		thermostat.TargetTemp = json.TargetTemp
+
 		c.JSON(200, json)
+	})
+
+	v1.GET("/schedules", func(c *gin.Context) {
+		schedules, _ := FindAllSchedules(database)
+
+		c.JSON(200, schedules)
+	})
+
+	v1.POST("/schedules", func(c *gin.Context) {
+		var schedule Schedule
+		bound := c.Bind(&schedule)
+
+		if !bound {
+			c.Fail(400, errors.New("Invalid schedule"))
+		} else {
+			schedule.Save(database)
+			c.JSON(200, schedule)
+		}
+	})
+
+	v1.DELETE("/schedules/:id", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Params.ByName("id"))
+
+		if err != nil {
+			c.Fail(400, errors.New("Malformed id"))
+		} else {
+			DestroySchedule(database, id)
+			c.String(200, "")
+		}
 	})
 
 	return r

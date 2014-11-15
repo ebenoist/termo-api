@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+if [ -z "$ENV" ]; then
+  ENV="DEVELOPMENT"
+fi
+
+DB_NAME="db/termo-db-${ENV^^}.db"
+
+echo "Running migrations for $DB_NAME"
+for m in $( ls db/*.sql ); do
+  echo "Running $migration"
+  sqlite3 -echo $DB_NAME < $m
+done

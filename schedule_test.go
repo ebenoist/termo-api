@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"database/sql"
 	. "github.com/ebenoist/termo-api"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -51,6 +52,42 @@ var _ = Describe("Schedule", func() {
 		Expect(result.Hour).To(Equal(2))
 		Expect(result.Days).To(Equal("weekends"))
 		Expect(result.TargetTemp).To(Equal(20))
+	})
+
+	It("Can be updated", func() {
+		schedule := &Schedule{
+			TargetTemp: 20,
+			Hour:       2,
+			Days:       WEEKENDS,
+		}
+
+		schedule.Save(database)
+		schedule.TargetTemp = 10
+		schedule.Save(database)
+
+		var result Schedule
+		database.Connection().Get(&result, "SELECT * FROM schedule WHERE id=1")
+
+		Expect(result.Hour).To(Equal(2))
+		Expect(result.Days).To(Equal("weekends"))
+		Expect(result.TargetTemp).To(Equal(10))
+	})
+
+	It("Can be removed", func() {
+		schedule := &Schedule{
+			TargetTemp: 20,
+			Hour:       2,
+			Days:       WEEKENDS,
+		}
+
+		schedule.Save(database)
+		DestroySchedule(database, 1)
+
+		var result Schedule
+		err := database.Connection().Get(&result, "SELECT * FROM schedule WHERE id=1")
+
+		Expect(result.TargetTemp).To(Equal(0))
+		Expect(err).To(Equal(sql.ErrNoRows))
 	})
 
 	It("Can be found by a given time", func() {
@@ -109,5 +146,30 @@ var _ = Describe("Schedule", func() {
 		foundTime := FindScheduleByTime(database, searchTime)
 
 		Expect(foundTime.TargetTemp).To(Equal(10))
+	})
+
+	Describe("FindAllSchedules", func() {
+		It("Returns all the schedules", func() {
+			schedule := &Schedule{
+				TargetTemp: 10,
+				Hour:       8,
+				Days:       WEEKENDS,
+			}
+
+			scheduleTwo := &Schedule{
+				TargetTemp: 11,
+				Hour:       11,
+				Days:       WEEKENDS,
+			}
+
+			schedule.Save(database)
+			scheduleTwo.Save(database)
+
+			schedules, _ := FindAllSchedules(database)
+			Expect(schedules).To(HaveLen(2))
+
+			Expect(schedules[0].TargetTemp).To(Equal(10))
+			Expect(schedules[1].TargetTemp).To(Equal(11))
+		})
 	})
 })

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [ -z "$ENV" ]; then
+  ENV="development"
+fi
+
+DB_NAME="termo-db-${ENV^^}.db"
+
+echo "DROPPING $DB_NAME"
+rm "db/$DB_NAME"
