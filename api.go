@@ -42,7 +42,7 @@ type ThermostatRequest struct {
 	TargetTemp int `json:"targetTemp" binding:"required"`
 }
 
-func apiRun(thermostat *Thermostat) {
+func Api(thermostat *Thermostat) *gin.Engine {
 	r := gin.Default()
 	r.Use(CORSMiddleware())
 
@@ -67,5 +67,5 @@ func apiRun(thermostat *Thermostat) {
 		c.JSON(200, json)
 	})
 
-	r.Run(":8080")
+	return r
 }
