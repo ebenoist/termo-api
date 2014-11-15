@@ -55,3 +55,7 @@ A [Go](http://golang.org/) based API for a DIY internet controlled thermostat.
   "targetTemp": 30
 }
 ```
+
+License
+---
+[MIT](https://github.com/ebenoist/termo-api/blob/master/LICENSE.txt)
