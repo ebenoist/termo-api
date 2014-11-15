@@ -52,6 +52,10 @@ func main() {
 		}
 	}()
 
+	scheduler := &Scheduler{}
+
 	go thermostat.Run()
-	apiRun(thermostat)
+	go scheduler.Run(thermostat)
+	api := Api(thermostat)
+	api.Run(":8080")
 }
