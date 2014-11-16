@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"os"
@@ -90,21 +91,25 @@ func Api(thermostat *Thermostat) *gin.Engine {
 
 	v1.POST("/schedules", func(c *gin.Context) {
 		var schedule Schedule
-		c.Bind(&schedule)
-		schedule.Save(database)
+		bound := c.Bind(&schedule)
 
-		c.JSON(200, schedule)
+		if !bound {
+			c.Fail(400, errors.New("Invalid schedule"))
+		} else {
+			schedule.Save(database)
+			c.JSON(200, schedule)
+		}
 	})
 
 	v1.DELETE("/schedules/:id", func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Params.ByName("id"))
 
 		if err != nil {
-			c.String(400, "Malformed id")
+			c.Fail(400, errors.New("Malformed id"))
+		} else {
+			DestroySchedule(database, id)
+			c.String(200, "")
 		}
-
-		DestroySchedule(database, id)
-		c.String(200, "")
 	})
 
 	return r

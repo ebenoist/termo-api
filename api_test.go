@@ -53,6 +53,24 @@ var _ = Describe("API", func() {
 			}`))
 		})
 
+		It("Responds with a 400 when the schedule is invalid", func() {
+			reqBody := bytes.NewBufferString(`{ "foo": "bar" }`)
+
+			req, _ := http.NewRequest("POST", "/v1/schedules", reqBody)
+			req.Header.Add("Content-Type", "application/json")
+
+			w := httptest.NewRecorder()
+
+			api := Api(&Thermostat{})
+			api.ServeHTTP(w, req)
+			w.Flush()
+
+			Expect(w.Code).To(Equal(400))
+
+			schedules, _ := FindAllSchedules(database)
+			Expect(schedules).To(HaveLen(0))
+		})
+
 		It("GETS all the schedules", func() {
 			schedule := &Schedule{
 				TargetTemp: 10,

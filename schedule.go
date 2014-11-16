@@ -39,8 +39,7 @@ func FindScheduleByTime(d *Database, t time.Time) *Schedule {
 
 func DestroySchedule(d *Database, id int) error {
 	connection := d.Connection()
-	_, err := connection.Exec(`DELETE FROM
-		schedule WHERE id=?`, id)
+	_, err := connection.Exec(`DELETE FROM schedule WHERE id=?`, id)
 
 	if err != nil {
 		log.Printf("db: error %s", err)
@@ -69,12 +68,12 @@ func (s *Schedule) Save(d *Database) error {
 		schedule (id, hour, target_temp, days)
 		values (:id, :hour, :target_temp, :days)`, s)
 
-	id, _ := result.LastInsertId()
-	s.Id.Scan(id)
-
 	if err != nil {
 		log.Printf("db: error %s", err)
 	}
+
+	id, _ := result.LastInsertId()
+	s.Id.Scan(id)
 
 	return err
 }
